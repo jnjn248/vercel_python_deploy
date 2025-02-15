@@ -1,103 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>One Page Wonder - Start Bootstrap Template</title>
-        <link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico" />
-        <!-- Font Awesome icons (free version)-->
-        <script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js" crossorigin="anonymous"></script>
-        <!-- Google fonts-->
-        <link href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="/static/css/styles.css" rel="stylesheet" />
-    </head>
-    <body id="page-top">
-        <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
-            <div class="container px-5">
-                <a class="navbar-brand" href="#page-top">Start Bootstrap</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                <div class="collapse navbar-collapse" id="navbarResponsive">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link" href="#!">Sign Up</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#!">Log In</a></li>
-                    </ul>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>深度思考助手</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		@keyframes wave {
+
+			0%,
+			60%,
+			100% {
+				transform: translateY(0);
+			}
+
+			30% {
+				transform: translateY(-6px);
+			}
+		}
+
+		.typing-indicator span {
+			animation: wave 1.4s infinite;
+		}
+
+		.message-enter {
+			animation: slideIn 0.3s ease-out;
+		}
+
+		@keyframes slideIn {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+	</style>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+	<div class="max-w-2xl mx-auto p-4 h-screen flex flex-col">
+		<div class="bg-white rounded-xl shadow-lg flex-1 flex flex-col">
+			<!-- 聊天区域 -->
+			<div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-4">
+				<div class="message bot message-enter">
+					<div class="bg-blue-100 p-3 rounded-lg max-w-[85%] inline-block">
+						您好！我是深度思考助手，请输入您的问题...
+					</div>
+				</div>
+			</div>
+
+			<!-- 输入区域 -->
+			<div class="border-t p-4 bg-gray-50">
+				<div class="flex gap-2 relative">
+					<input type="text" id="user-input"
+						class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+						placeholder="输入您的问题..." autocomplete="off">
+					<button onclick="sendMessage()"
+						class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-colors flex items-center"
+						id="send-btn">
+						<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+								d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+						</svg>
+						发送
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const chatBox = document.getElementById('chat-box');
+		const userInput = document.getElementById('user-input');
+		const sendBtn = document.getElementById('send-btn');
+		let isProcessing = false;
+
+		// 创建加载指示器
+		function createTyping() {
+			const div = document.createElement('div');
+			div.className = 'message bot message-enter';
+			div.innerHTML = `
+                <div class="bg-blue-100 p-3 rounded-lg max-w-[85%] inline-flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-blue-400 rounded-full animate-wave"></span>
+                    <span class="w-2 h-2 bg-blue-400 rounded-full animate-wave" style="animation-delay: 0.2s"></span>
+                    <span class="w-2 h-2 bg-blue-400 rounded-full animate-wave" style="animation-delay: 0.4s"></span>
                 </div>
-            </div>
-        </nav>
-        <!-- Header-->
-        <header class="masthead text-center text-white">
-            <div class="masthead-content">
-                <div class="container px-5">
-                    <h1 class="masthead-heading mb-0">One Page Wonder</h1>
-                    <h2 class="masthead-subheading mb-0">Will Rock Your Socks Off</h2>
-                    <a class="btn btn-primary btn-xl rounded-pill mt-5" href="#scroll">Learn More</a>
+            `;
+			return div;
+		}
+
+		// 添加消息
+		function addMessage(content, isUser = false) {
+			const div = document.createElement('div');
+			div.className = `message ${isUser ? 'user' : 'bot'} message-enter`;
+			div.innerHTML = `
+                <div class="${isUser ?
+					'bg-blue-500 text-white ml-auto' :
+					'bg-blue-100'} p-3 rounded-lg max-w-[85%] inline-block">
+                    ${content}
                 </div>
-            </div>
-            <div class="bg-circle-1 bg-circle"></div>
-            <div class="bg-circle-2 bg-circle"></div>
-            <div class="bg-circle-3 bg-circle"></div>
-            <div class="bg-circle-4 bg-circle"></div>
-        </header>
-        <!-- Content section 1-->
-        <section id="scroll">
-            <div class="container px-5">
-                <div class="row gx-5 align-items-center">
-                    <div class="col-lg-6 order-lg-2">
-                        <div class="p-5"><img class="img-fluid rounded-circle" src="/static/assets/img/01.jpg" alt="..." /></div>
-                    </div>
-                    <div class="col-lg-6 order-lg-1">
-                        <div class="p-5">
-                            <h2 class="display-4">For those about to rock...</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod aliquid, mollitia odio veniam sit iste esse assumenda amet aperiam exercitationem, ea animi blanditiis recusandae! Ratione voluptatum molestiae adipisci, beatae obcaecati.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Content section 2-->
-        <section>
-            <div class="container px-5">
-                <div class="row gx-5 align-items-center">
-                    <div class="col-lg-6">
-                        <div class="p-5"><img class="img-fluid rounded-circle" src="/static/assets/img/02.jpg" alt="..." /></div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="p-5">
-                            <h2 class="display-4">We salute you!</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod aliquid, mollitia odio veniam sit iste esse assumenda amet aperiam exercitationem, ea animi blanditiis recusandae! Ratione voluptatum molestiae adipisci, beatae obcaecati.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Content section 3-->
-        <section>
-            <div class="container px-5">
-                <div class="row gx-5 align-items-center">
-                    <div class="col-lg-6 order-lg-2">
-                        <div class="p-5"><img class="img-fluid rounded-circle" src="/static/assets/img/03.jpg" alt="..." /></div>
-                    </div>
-                    <div class="col-lg-6 order-lg-1">
-                        <div class="p-5">
-                            <h2 class="display-4">Let there be rock!</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod aliquid, mollitia odio veniam sit iste esse assumenda amet aperiam exercitationem, ea animi blanditiis recusandae! Ratione voluptatum molestiae adipisci, beatae obcaecati.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Footer-->
-        <footer class="py-5 bg-black">
-            <div class="container px-5"><p class="m-0 text-center text-white small">Copyright &copy; Your Website 2021</p></div>
-        </footer>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="js/scripts.js"></script>
-    </body>
+            `;
+			chatBox.appendChild(div);
+			chatBox.scrollTop = chatBox.scrollHeight;
+		}
+
+		// 发送消息
+		async function sendMessage() {
+			if (isProcessing) return;
+
+			const message = userInput.value.trim();
+			if (!message) return;
+
+			isProcessing = true;
+			userInput.disabled = true;
+			sendBtn.disabled = true;
+
+			addMessage(message, true);
+			userInput.value = '';
+
+			const typing = createTyping();
+			chatBox.appendChild(typing);
+			chatBox.scrollTop = chatBox.scrollHeight;
+
+			try {
+				const response = await fetch('/chat', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ message })
+				});
+
+				const reader = response.body.getReader();
+				const decoder = new TextDecoder();
+				let buffer = '';
+				let isFirstChunk = true;
+
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) break;
+
+					buffer += decoder.decode(value, { stream: true });
+					const lines = buffer.split('\n\n');
+
+					for (const line of lines) {
+						if (!line.startsWith('data: ')) continue;
+
+						try {
+							const data = JSON.parse(line.slice(6));
+							if (data.error) {
+								addMessage(`错误: ${data.error}`);
+								break;
+							}
+
+							if (isFirstChunk) {
+								chatBox.removeChild(typing);
+								addMessage(data.content);
+								isFirstChunk = false;
+							} else {
+								const lastMsg = chatBox.lastChild.querySelector('div');
+								lastMsg.textContent += data.content;
+							}
+						} catch (e) {
+							console.error('解析错误:', e);
+						}
+					}
+
+					buffer = lines.pop() || '';
+				}
+			} catch (err) {
+				addMessage(`请求失败: ${err.message}`);
+			} finally {
+				isProcessing = false;
+				userInput.disabled = false;
+				sendBtn.disabled = false;
+				chatBox.scrollTop = chatBox.scrollHeight;
+			}
+		}
+
+		// 回车发送
+		userInput.addEventListener('keypress', (e) => {
+			if (e.key === 'Enter' && !e.shiftKey) {
+				e.preventDefault();
+				sendMessage();
+			}
+		});
+	</script>
+</body>
+
 </html>
